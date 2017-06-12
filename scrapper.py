@@ -59,10 +59,10 @@ class Scrapper(object):
         kenya = zip(self.county_title, self.population, self.constituencies)
         for county in kenya:
             self.counties.append({
-                county[0]: {
-                    "population": county[1].split()[2],  # population as of 2009
-                    "constituencies": [cnty.split('.')[-1] for cnty in county[2].split(',')]
-                    }})
+                "county": county[0],
+                "population": county[1].split()[2],  # population as of 2009
+                "constituencies": [cnty.split('.')[-1] for cnty in county[2].split(',')]
+                })
 
     def upload_data(self):
         """
