@@ -14,7 +14,7 @@ class Scrapper(object):
         self.constituencies = []
         self.counties = []
         self.bulk_data = []
-        self.ES_HOST = {"host": "localhost", "port": "9200"}
+        self.ES_HOST = "https://elastic:cUWiP2WUvkz61Kcihvg3PZd2@6697ac01589eb72a5f7d26f94e7b5c8d.us-east-1.aws.found.io:9243"
         self.INDEX_NAME = "counties"
         self.TYPE_NAME = "county"
         self._ID = 1
@@ -59,8 +59,8 @@ class Scrapper(object):
         kenya = zip(self.county_title, self.population, self.constituencies)
         for county in kenya:
             self.counties.append({
-                "county": county[0],
-                "population": county[1].split()[2],  # population as of 2009
+                "title": county[0],
+                "population": county[1].split()[2][:-1],  # population as of 2009, remove trailing full stop
                 "constituencies": [cnty.split('.')[-1] for cnty in county[2].split(',')]
                 })
 
@@ -80,7 +80,7 @@ class Scrapper(object):
             self.bulk_data.append(meta_dict)
             self.bulk_data.append(json.dumps(county))
             self._ID += 1
-        esclient = Elasticsearch(hosts=[self.ES_HOST])
+        esclient = Elasticsearch([self.ES_HOST])
         if esclient.indices.exists(self.INDEX_NAME):
             print "deleting '%s' index..." % self.INDEX_NAME
             res = esclient.indices.delete(index=self.INDEX_NAME)
@@ -100,7 +100,7 @@ class Scrapper(object):
         # bulk index the data and use refresh to ensure that our data will be immediately available
         print "bulk indexing..."
         res = esclient.bulk(index=self.INDEX_NAME, body=self.bulk_data, refresh=True)
-        print res
+        pp(res)
 
 
 if __name__ == '__main__':
